@@ -1,14 +1,14 @@
 from datetime import datetime
 from pydantic import BaseModel, field_validator
 
-class NotesResponse(BaseModel):
+class NoteResponse(BaseModel):
     id: int
     title: str
     content: str
     created_at: datetime
     updated_at: datetime
 
-class NotesCreate(BaseModel):
+class NoteCreate(BaseModel):
     title: str
     content: str
 
@@ -32,7 +32,7 @@ class NotesCreate(BaseModel):
             raise ValueError("Content must not exceed 500 characters")
         return value
 
-class NotesUpdate(BaseModel):
+class NoteUpdate(BaseModel):
     title: str | None = None
     content: str | None = None
 

@@ -1,6 +1,6 @@
 from app.database import note_db
 from fastapi import status, HTTPException
-from app.schemas import NotesCreate, NotesResponse,NotesUpdate
+from app.schemas import NoteCreate, NoteResponse,NoteUpdate
 from datetime import datetime
 
 
@@ -14,9 +14,9 @@ def get_note_by_id(note_id: int):
     return note_db[note_id]
 
 
-def create_new_note(note:NotesCreate):
+def create_new_note(note:NoteCreate):
     new_note_id = max(note_db.keys()) + 1 if note_db else 1
-    new_note = NotesResponse(
+    new_note = NoteResponse(
         id=new_note_id,
         title=note.title,
         content=note.content,
@@ -26,12 +26,12 @@ def create_new_note(note:NotesCreate):
     note_db[new_note_id] = new_note
     return {"message": "Note created successfully", "note":new_note}
 
-def update_note(note_id: int, note: NotesUpdate):
+def update_note(note_id: int, note: NoteUpdate):
     if note_id not in note_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Note not found")
     elif note.title is None and note.content is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="At least one field (title or content) must be provided for update")
-    updated_note = NotesResponse(
+    updated_note = NoteResponse(
         id=note_id,
         title=note.title if note.title is not None else note_db[note_id].title,
         content=note.content if note.content is not None else note_db[note_id].content,
