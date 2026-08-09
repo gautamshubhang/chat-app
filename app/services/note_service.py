@@ -1,48 +1,54 @@
-from app.database import note_db
-from fastapi import status, HTTPException
+from app.database import get_db, note_db
+from app.model import Note
+from fastapi import status, HTTPException, Depends
 from app.schemas import NoteCreate, NoteResponse,NoteUpdate
 from datetime import datetime
+from sqlalchemy import select, func
 
 
 
-def get_all_notes():
-    return list(note_db.values())
+def get_all_notes(db=Depends(get_db)):
+    stmt = select(Note)
+    note = db.execute(stmt).all()
+    return note
 
-def get_note_by_id(note_id: int):
-    if note_id not in note_db:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Note not found")
-    return note_db[note_id]
+def get_note_by_id(note_id: int,db=Depends(get_db)):
+    stmt = select(Note).where(Note.id == note_id)
+    note = db.execute(stmt).scalars().first()
+    if not note:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
+    return note
 
 
-def create_new_note(note:NoteCreate):
-    new_note_id = max(note_db.keys()) + 1 if note_db else 1
-    new_note = NoteResponse(
-        id=new_note_id,
-        title=note.title,
-        content=note.content,
-        created_at=datetime.now(),
-        updated_at=datetime.now()
+def create_new_note(note_data:NoteCreate,db=Depends(get_db)):
+    new_note = Note(
+        title=note_data.title,
+        content=note_data.content,
     )
-    note_db[new_note_id] = new_note
+    db.add(new_note)
+    db.commit()
+    db.refresh(new_note)
     return {"message": "Note created successfully", "note":new_note}
 
-def update_note(note_id: int, note: NoteUpdate):
-    if note_id not in note_db:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Note not found")
+def update_note(note_id: int, note: NoteUpdate, db=Depends(get_db)):
+    stmt = select(Note).where(Note.id == note_id)
+    note_db_response = db.execute(stmt).scalars().first()
+    if not note_db_response:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
     elif note.title is None and note.content is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="At least one field (title or content) must be provided for update")
-    updated_note = NoteResponse(
-        id=note_id,
-        title=note.title if note.title is not None else note_db[note_id].title,
-        content=note.content if note.content is not None else note_db[note_id].content,
-        created_at=note_db[note_id].created_at,
-        updated_at=datetime.now()
-    )
-    note_db[note_id] = updated_note
-    return {"message": "Note updated successfully", "note": updated_note}
+    updated_note = note.model_dump(exclude_unset=True)
+    for key, value in updated_note.items():
+        setattr(note_db_response, key, value)
+    db.commit()
+    db.refresh(note_db_response)
+    return {"message": "Note updated successfully", "note": note_db_response}
 
-def delete_note(note_id: int):
-    if note_id not in note_db:
+def delete_note(note_id: int, db=Depends(get_db)):
+    stmt = select(Note).where(Note.id == note_id)
+    note_db_response = db.execute(stmt).scalars().first()
+    if not note_db_response:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
-    del note_db[note_id]
-    return {"message": "Note deleted successfully"}
+    db.delete(note_db_response)
+    db.commit()
+    return None
