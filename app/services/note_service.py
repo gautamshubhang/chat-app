@@ -43,4 +43,4 @@ def delete_note(note_id: int, db : Session):
         return None
     db.delete(note_db_response)
     db.commit()
-    return 1
+    return True

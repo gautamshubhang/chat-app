@@ -1,7 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy import create_engine, URL
-import urllib.parse
 
 class DatabaseSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
@@ -13,13 +12,12 @@ class DatabaseSettings(BaseSettings):
 
 db_settings = DatabaseSettings()
 
-safe_password = urllib.parse.quote_plus(db_settings.db_password)
 
 
 db_url = URL.create(
     drivername="postgresql",
     username=db_settings.db_user,
-    password=safe_password, 
+    password=db_settings.db_password, 
     host=db_settings.db_host,
     port=db_settings.db_port,
     database=db_settings.db_name
