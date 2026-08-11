@@ -1,4 +1,3 @@
-import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy import create_engine, URL
@@ -16,8 +15,6 @@ db_settings = DatabaseSettings()
 
 safe_password = urllib.parse.quote_plus(db_settings.db_password)
 
-print(f"--> APP TRYING USER: '{db_settings.db_user}'")
-print(f"--> APP TRYING PASS: '{db_settings.db_password}'") 
 
 db_url = URL.create(
     drivername="postgresql",
