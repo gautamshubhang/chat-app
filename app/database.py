@@ -1,17 +1,29 @@
-# from app.schemas import NoteResponse
-
-# shubhang1234
-# note_db = {
-#     1: NoteResponse(id=1, title="Note 1", content="This is the first note", created_at=datetime.now(), updated_at=datetime.now()),
-#     2: NoteResponse(id=2, title="Note 2", content="This is the second note", created_at=datetime.now(), updated_at=datetime.now())
-# }
-
-
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, URL
+
+class DatabaseSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    db_user: str
+    db_password: str
+    db_host: str
+    db_port: int
+    db_name: str
+
+db_settings = DatabaseSettings()
 
 
-engine = create_engine("postgresql://postgres:shubhang@1234@localhost:5432/family_chat", echo=True)
+
+db_url = URL.create(
+    drivername="postgresql",
+    username=db_settings.db_user,
+    password=db_settings.db_password, 
+    host=db_settings.db_host,
+    port=db_settings.db_port,
+    database=db_settings.db_name
+)
+
+engine = create_engine(db_url, echo=True)
 session = sessionmaker(bind=engine)
 
 class Base(DeclarativeBase):
