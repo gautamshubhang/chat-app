@@ -24,13 +24,13 @@ db_url = URL.create(
 )
 
 engine = create_engine(db_url, echo=True)
-session = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine)
 
 class Base(DeclarativeBase):
     pass
 
 def get_db():
-    db = session()
+    db = SessionLocal()
     try:
         yield db
     finally:
