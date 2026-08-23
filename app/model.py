@@ -17,4 +17,5 @@ class Note(Base):
             server_default=func.now(),
             onupdate=func.now(),
             nullable=False)
+    is_pinned: Mapped[bool] = mapped_column(default=False,nullable=False)
 
