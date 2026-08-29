@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, URL, MetaData
+from sqlalchemy import create_engine, URL, event, text
 from app.database import DatabaseSettings, Base
 from alembic import command
 from alembic.config import Config
@@ -31,6 +31,9 @@ def test_database():
         db_url.render_as_string(hide_password=False)
     )
 
+    with test_engine.begin() as connection:
+        connection.execute(text("DROP TABLE IF EXISTS alembic_version;"))
+
     command.upgrade(config, "head")
 
     yield
@@ -42,9 +45,21 @@ def test_database():
 @pytest.fixture()
 def db(test_database):
 
-    db = TestSessionLocal()
+    connection = test_engine.connect()
+    transaction = connection.begin()
+
+    db = TestSessionLocal(bind=connection)
+    db.begin_nested()
+
+    @event.listens_for(db, "after_transaction_end")
+    def restart_savepoint(db,transaction):
+        if transaction.nested and not transaction._parent.nested:
+            db.begin_nested()
 
     try:
         yield db
     finally:
+        db.rollback()
         db.close()
+        connection.close()
+

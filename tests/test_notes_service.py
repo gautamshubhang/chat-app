@@ -1,5 +1,5 @@
 from app.schemas import NoteCreate
-from app.services.note_service import create_new_note, get_all_notes, get_note_by_id, update_note, delete_note
+from app.services.note_service import create_new_note, get_all_notes
 from pydantic import ValidationError
 import pytest
 
@@ -40,3 +40,7 @@ def test_create_note_with_long_content():
             content="C" * 501
         )
     assert "Content must not exceed 500 characters" in str(exc.value)
+
+def test_database_clean(db):
+    notes = get_all_notes(db)
+    assert len(notes) == 0
