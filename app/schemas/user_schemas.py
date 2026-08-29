@@ -26,8 +26,8 @@ class UserRegister(BaseModel):
     def password_validation(cls, value: str) -> str:
         if not value:
             raise ValueError("Password must be provided")
-        elif len(value) > 20:
-            raise ValueError("Password must not exceed 20 characters")
+        elif len(value) > 50:
+            raise ValueError("Password must not exceed 50 characters")
         elif len(value) < 8:
             raise ValueError("Password must be at least 8 characters long")
         elif not any(char.isupper() for char in value):
