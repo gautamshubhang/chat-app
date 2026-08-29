@@ -1,4 +1,4 @@
-from app.schemas import NoteCreate
+from app.schemas.note_schemas import NoteCreate
 from app.services.note_service import create_new_note, get_all_notes
 from pydantic import ValidationError
 import pytest

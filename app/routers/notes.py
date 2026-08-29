@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 from app.database import get_db
-from app.schemas import NoteResponse, NoteCreate, NoteUpdate
+from app.schemas.note_schemas import NoteResponse, NoteCreate, NoteUpdate
 from app.services.note_service import get_all_notes,get_note_by_id,create_new_note,update_note,delete_note
 
 router = APIRouter(prefix="/notes", tags=["Notes"])
