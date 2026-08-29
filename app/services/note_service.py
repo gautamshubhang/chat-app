@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.model import Note
-from app.schemas import NoteCreate,NoteUpdate
+from app.schemas.note_schemas import NoteCreate,NoteUpdate
 from sqlalchemy import select
 
 
