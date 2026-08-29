@@ -9,12 +9,9 @@ from app.services.auth_service import create_new_user
 router = APIRouter(prefix="/users", tags=["Auth"])
 
 @router.post("/",response_model=UserResponse)
-def create_new_user_endpoint(user_data, db: Session = Depends(get_db)):
+def create_new_user_endpoint(user_data: UserRegister, db: Session = Depends(get_db)):
     try:
         return create_new_user(user_data, db)
     except ValueError as e:
-        if str(e) in ("Username already taken","Email already used"):
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-        else:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
