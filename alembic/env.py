@@ -26,18 +26,24 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-settings = DatabaseSettings()
 
-db_url = URL.create(
-    drivername="postgresql+psycopg2",
-    username=settings.db_user,
-    password=settings.db_password,
-    host=settings.db_host,
-    port=settings.db_port,
-    database=settings.db_name,
-)
+database_url = config.get_main_option("sqlalchemy.url")
 
-config.set_main_option("sqlalchemy.url", db_url.render_as_string(hide_password=False))
+if not database_url:
+    settings = DatabaseSettings()
+
+    db_url = URL.create(
+        drivername="postgresql+psycopg2",
+        username=settings.db_user,
+        password=settings.db_password,
+        host=settings.db_host,
+        port=settings.db_port,
+        database=settings.db_name,
+    )
+
+    database_url = db_url.render_as_string(hide_password=False)
+
+    config.set_main_option("sqlalchemy.url", database_url)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
