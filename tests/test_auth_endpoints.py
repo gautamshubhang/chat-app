@@ -17,7 +17,7 @@ def test_login_valid_username_password(client):
     assert r.status_code == 200
     data = r.json()
     assert "access_token" in data
-    assert data.get("token_type") == "Bearer"
+    assert data.get("token_type") == "bearer"
 
 
 def test_login_wrong_password(client):
@@ -49,7 +49,7 @@ def test_jwt_tampered_token_401(client):
     token = r.json().get("access_token")
     tampered = token + "a"
 
-    headers = {"Authorization": f"Bearer {tampered}"}
+    headers = {"Authorization": f"bearer {tampered}"}
     r = client.get("/auth/me", headers=headers)
     assert r.status_code == 401
 
@@ -57,16 +57,18 @@ def test_jwt_tampered_token_401(client):
 def test_jwt_expired_token_401(client):
     # temporarily set expiry to negative minutes to force expiration
     original = access_token.jwt_token_exp_min
-    access_token.jwt_token_exp_min = -1
-    token = create_access_token(999)
-    access_token.jwt_token_exp_min = original
+    try:
+        access_token.jwt_token_exp_min = -1
+        token = create_access_token(999)
+    finally:
+        access_token.jwt_token_exp_min = original
 
     # decoding directly raises ValueError (expired)
     with pytest.raises(ValueError):
         decode_access_token(token)
 
     # and using endpoint returns 401
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"bearer {token}"}
     r = client.get("/auth/me", headers=headers)
     assert r.status_code == 401
 
@@ -77,7 +79,7 @@ def test_jwt_missing_sub_401(client):
     algo = access_token.jwt_algo
     token = jwt.encode({"foo": "bar"}, key, algorithm=algo)
 
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"bearer {token}"}
     r = client.get("/auth/me", headers=headers)
     assert r.status_code == 401
 
@@ -107,7 +109,7 @@ def test_valid_token_returns_user(client):
     r = client.post("/auth/login", json={"username": "meuser", "password": "Password1!"})
     token = r.json().get("access_token")
 
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"bearer {token}"}
     r = client.get("/auth/me", headers=headers)
     assert r.status_code == 200
     data = r.json()
@@ -127,7 +129,7 @@ def test_register_login_getme_integration(client):
     assert r.status_code == 200
     token = r.json().get("access_token")
 
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"bearer {token}"}
     r = client.get("/auth/me", headers=headers)
     assert r.status_code == 200
     me = r.json()

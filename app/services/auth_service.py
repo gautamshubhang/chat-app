@@ -27,7 +27,7 @@ def user_login(user_data: UserLogin, db: Session):
         raise ValueError("Username or Password incorrect")
     elif verify_password(rsp.password_hash, user_data.password):
         token = create_access_token(rsp.id)
-        return TokenResponse(access_token=token, token_type="Bearer")
+        return TokenResponse(access_token=token, token_type="bearer")
     else:
         raise ValueError("Username or Password incorrect")
 
@@ -36,9 +36,13 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     try:
         payload = decode_access_token(token)
         user_id = payload.get("sub")
-        user = get_user_by_id(user_id, db)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-        return user
+        try:
+            str(user_id)
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    user = get_user_by_id(user_id, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    return user
