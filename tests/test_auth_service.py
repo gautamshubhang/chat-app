@@ -1,9 +1,9 @@
+from app.core.security import verify_password
 from app.schemas.user_schemas import UserRegister
 from app.services.auth_service import create_new_user
 from app.model import User
 from sqlalchemy import select
 import pytest
-from argon2 import PasswordHasher
 
 
 def test_register_valid_user(db):
@@ -17,8 +17,7 @@ def test_register_valid_user(db):
     assert user_db.email == "test1@gmail.com"
     assert hasattr(user_db, "password_hash")
     assert user_db.password_hash != "Password1!"
-    ph = PasswordHasher()
-    assert ph.verify(user_db.password_hash, "Password1!")
+    assert verify_password(user_db.password_hash, "Password1!")
 
 
 def test_duplicate_username(db):

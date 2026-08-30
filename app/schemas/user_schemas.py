@@ -57,3 +57,31 @@ class UserResponse(BaseModel):
     username: str
     email: str
     created_at: datetime
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        if not value:
+            raise ValueError("Username must be provided")
+        elif len(value) > 20:
+            raise ValueError("Username must not exceed 20 characters")
+        return value
+
+    @field_validator('password')
+    @classmethod
+
+    def password_validation(cls, value: str) -> str:
+        if not value:
+            raise ValueError("Password must be provided")
+        elif len(value) > 50:
+            raise ValueError("Password must not exceed 50 characters")
+        return value
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
