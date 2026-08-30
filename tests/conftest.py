@@ -4,6 +4,9 @@ from sqlalchemy import create_engine, URL, event, text
 from app.database import DatabaseSettings, Base
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
+from app.main import app
+from app.database import get_db
 
 db_settings = DatabaseSettings()
 
@@ -62,4 +65,19 @@ def db(test_database):
         db.rollback()
         db.close()
         connection.close()
+
+
+@pytest.fixture()
+def client(db):
+    # override get_db to use the test database session
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
 

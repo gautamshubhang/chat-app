@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import notes
+from app.routers import notes, auth
 from app.database import engine, Base
 from app.model import Note
 
@@ -11,4 +11,5 @@ app = FastAPI(
 )
 
 app.include_router(notes.router)
+app.include_router(auth.router)
 
