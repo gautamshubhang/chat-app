@@ -1,7 +1,7 @@
 from app.core.security import verify_password
 from app.schemas.user_schemas import UserRegister
 from app.services.auth_service import create_new_user
-from app.model import User
+from app.model.user_model import User
 from sqlalchemy import select
 import pytest
 
