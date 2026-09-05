@@ -1,9 +1,7 @@
 from fastapi import FastAPI
-from app.routers import notes, auth
-from app.database import engine, Base
-from app.model import Note
+from app.routers import notes, auth, conversations
 
-Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="Family Chat API",
@@ -12,4 +10,5 @@ app = FastAPI(
 
 app.include_router(notes.router)
 app.include_router(auth.router)
+app.include_router(conversations.router)
 
