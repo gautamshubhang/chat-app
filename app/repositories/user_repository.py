@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from app.core.security import hash_password
-from app.model import User
+from app.model.user_model import User
 from app.schemas.user_schemas import UserRegister, UserResponse
 from sqlalchemy.orm import Session
 

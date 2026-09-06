@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 from app.database import get_db
-from app.model import User
+from app.model.user_model import User
 from app.schemas.user_schemas import TokenResponse, UserLogin, UserRegister, UserResponse
 from app.services.auth_service import create_new_user, get_current_user, user_login
 
