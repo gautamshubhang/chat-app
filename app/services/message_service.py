@@ -2,11 +2,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.model.message_model import Message
 from app.model.conversation_model import ConversationMembers
-from app.schemas.message_schemas import SendMessage, RecieveMessage
+from app.repositories.message_repository import send_message
+from app.schemas.message_schemas import SendMessage, ReceiveMessage
 from app.model.user_model import User
 
 
-def create_message(conversation_id: int, message: SendMessage, db: Session, current_user: User) -> RecieveMessage:
+def create_message(conversation_id: int, message: SendMessage, db: Session, current_user: User) -> ReceiveMessage:
     # verify user is a member of the conversation
     stmt = select(ConversationMembers).where(
         ConversationMembers.conversation_id == conversation_id,
@@ -21,14 +22,12 @@ def create_message(conversation_id: int, message: SendMessage, db: Session, curr
         sender_id=current_user.id,
         content=message.content,
     )
-    db.add(new_message)
-    db.commit()
-    db.refresh(new_message)
 
-    return RecieveMessage(sender_id=new_message.sender_id, content=new_message.content, created_at=new_message.created_at)
+    result = send_message(new_message,db)
+    return result
 
 
-def get_messages(conversation_id: int, db: Session, current_user: User) -> list[RecieveMessage]:
+def get_messages(conversation_id: int, db: Session, current_user: User) -> list[ReceiveMessage]:
     # verify membership
     stmt = select(ConversationMembers).where(
         ConversationMembers.conversation_id == conversation_id,
@@ -41,4 +40,4 @@ def get_messages(conversation_id: int, db: Session, current_user: User) -> list[
     stmt = select(Message).where(Message.conversation_id == conversation_id).order_by(Message.created_at)
     msgs = db.execute(stmt).scalars().all()
 
-    return [RecieveMessage(sender_id=m.sender_id, content=m.content, created_at=m.created_at) for m in msgs]
+    return [ReceiveMessage(id=m.id,sender_id=m.sender_id, content=m.content, created_at=m.created_at) for m in msgs]

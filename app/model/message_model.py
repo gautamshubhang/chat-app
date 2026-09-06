@@ -12,5 +12,5 @@ class Message(Base):
     sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"),nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now(),nullable=False)
-    content: Mapped[str] = mapped_column(String(65536),nullable=False)
+    content: Mapped[str] = mapped_column(String(5000),nullable=False)
 

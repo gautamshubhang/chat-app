@@ -82,7 +82,7 @@ def test_creator_can_add_member_and_noncreator_cannot_and_cannot_add_nonexistent
     token_member, _ = login_user(client, "add_member", "Password1!")
 
     # create conversation with creator + member
-    r = client.post("/conversations/", json={"name":"addroom","members":[member["id"], creator["id"]]}, headers=auth_headers(token_creator))
+    r = client.post("/conversations/", json={"name":"addroom","members":[member["id"]]}, headers=auth_headers(token_creator))
     assert r.status_code == 200
     conv = r.json()
 

@@ -20,8 +20,8 @@ class CreateConversation(BaseModel):
     @classmethod
 
     def member_list_validation(cls, value: list[int]) -> list[int]:
-        if not value or len(value) < 2:
-            raise ValueError("Atleast 2 members need to be added")
+        if not value or len(value) < 1:
+            raise ValueError("Atleast 1 members need to be added")
         else:
             return value
 

@@ -42,7 +42,7 @@ def upgrade() -> None:
     sa.Column('conversation_id', sa.Integer(), nullable=False),
     sa.Column('sender_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('content', sa.String(length=65536), nullable=False),
+    sa.Column('content', sa.String(length=5000), nullable=False),
     sa.ForeignKeyConstraint(['conversation_id'], ['conversation.id'], ),
     sa.ForeignKeyConstraint(['sender_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
